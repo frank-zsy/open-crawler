@@ -179,7 +179,9 @@ module.exports = {
               const token = option.headers.Authorization.substring(6);
               const reset = response.headers['x-ratelimit-reset'];
               tokenMgr.updateToken(token, -1, reset);
-              return false;
+              const newToken = await tokenMgr.getToken();
+              option.headers.Authorization = `token ${newToken}`;
+              return true;
             }
           } catch {
             // body parse error, like if user-agent is not set

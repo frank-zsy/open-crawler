@@ -16,16 +16,16 @@ export default class TokenManager extends Service {
   private tokens: Token[];
   private initFunc: TokenInitFunc;
   private inited = false;
-  private refreshInterval = 1000;
+  private refreshInterval = 10000;
 
   public async setTokens(tokens: string[], initFunc: TokenInitFunc) {
     this.initFunc = initFunc;
     this.tokens = await Promise.all(tokens.map(initFunc));
     this.inited = true;
     setInterval(async () => {
-      while (this.tokens.findIndex(t => t.valid && t.reset <= new Date().getTime())) {
+      while (this.tokens.findIndex(t => t.valid && (t.reset <= new Date().getTime() / 1000)) >= 0) {
         // need reset
-        const index = this.tokens.findIndex(t => t.reset <= new Date().getTime());
+        const index = this.tokens.findIndex(t => t.valid && (t.reset <= new Date().getTime() / 1000));
         const token = await this.initFunc(this.tokens[index].token);
         this.tokens[index] = token;
       }
@@ -49,7 +49,7 @@ export default class TokenManager extends Service {
     }
     let token: any = null;
     await waitUntil(() => {
-      const index = this.tokens.findIndex(t => t.valid && t.remaining > 0);
+      const index = this.tokens.findIndex(t => t.valid && (t.remaining > 0));
       if (index < 0) {
         return false;
       }

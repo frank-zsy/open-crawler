@@ -9,6 +9,7 @@ module.exports = {
     cron: '0 0 3 * * *',
     type: 'worker',
     immediate: true,
+    disable: true,
   },
 
   async task(ctx: Context) {
@@ -19,7 +20,7 @@ module.exports = {
     }
 
     // init token manager
-    const tokenMgr = ctx.service.tokenManager;
+    const tokenMgr = ctx.service.staticTokenManager;
     const tokens = ctx.app.config.github_v3.tokens;
     tokenMgr.setTokens(tokens, async token => {
       const invalidToken = {

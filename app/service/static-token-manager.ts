@@ -12,7 +12,7 @@ interface TokenInitFunc {
   (token: string): Promise<Token>;
 }
 
-export default class TokenManager extends Service {
+export default class StaticTokenManager extends Service {
   private tokens: Token[];
   private initFunc: TokenInitFunc;
   private inited = false;

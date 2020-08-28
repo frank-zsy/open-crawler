@@ -8,7 +8,7 @@
     "declarations": true
   },
   "scripts": {
-    "start": "egg-scripts start --daemon --title=egg-server-open-crawler",
+    "start": "egg-scripts start --daemon --title=egg-server-open-crawler --port=9200",
     "stop": "egg-scripts stop --title=egg-server-open-crawler",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",
@@ -24,14 +24,18 @@
   "dependencies": {
     "egg": "^2.6.1",
     "egg-scripts": "^2.6.0",
+    "node-7z": "^2.1.1",
+    "node-worker-threads-pool": "^1.4.1",
     "request": "^2.88.2",
     "requestretry": "^4.1.1",
+    "smee-client": "^1.1.0",
     "sprintf-js": "^1.1.2",
-    "underscore": "^1.10.2"
+    "underscore": "^1.10.2",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.40",
-    "@types/node": "^7.0.12",
+    "@types/node": "^14.0.27",
     "@types/requestretry": "^1.12.7",
     "@types/supertest": "^2.0.0",
     "@types/underscore": "^1.10.20",

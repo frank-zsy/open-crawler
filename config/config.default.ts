@@ -24,6 +24,13 @@ export default (appInfo: EggAppInfo) => {
     ],
   };
 
+  config.unzip_example = {
+    basePath: 'BASE PATH',
+    files: [
+      'YOUR 7z FILES PATH',
+    ],
+  };
+
   // the return config will combines to EggAppConfig
   return {
     ...config,

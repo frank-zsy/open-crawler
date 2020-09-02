@@ -7,7 +7,7 @@ module.exports = {
     cron: '0 0 3 * * *',
     type: 'worker',
     immediate: true,
-    disable: false,
+    disable: true,
   },
 
   async task(ctx: Context) {

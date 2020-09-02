@@ -23,9 +23,11 @@
   },
   "dependencies": {
     "egg": "^2.6.1",
+    "egg-mongoose": "^3.3.0",
     "egg-scripts": "^2.6.0",
     "node-7z": "^2.1.1",
     "node-worker-threads-pool": "^1.4.1",
+    "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",
     "requestretry": "^4.1.1",
     "smee-client": "^1.1.0",

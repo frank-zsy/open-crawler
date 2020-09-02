@@ -10,6 +10,7 @@ import ExportDefaultProxy from '../../../app/service/default-proxy';
 import ExportRequestExecutor from '../../../app/service/request-executor';
 import ExportShellExecutor from '../../../app/service/shell-executor';
 import ExportSmeeProxy from '../../../app/service/smee-proxy';
+import ExportStackoverflow from '../../../app/service/stackoverflow';
 import ExportStaticTokenManager from '../../../app/service/static-token-manager';
 
 declare module 'egg' {
@@ -18,6 +19,7 @@ declare module 'egg' {
     requestExecutor: AutoInstanceType<typeof ExportRequestExecutor>;
     shellExecutor: AutoInstanceType<typeof ExportShellExecutor>;
     smeeProxy: AutoInstanceType<typeof ExportSmeeProxy>;
+    stackoverflow: AutoInstanceType<typeof ExportStackoverflow>;
     staticTokenManager: AutoInstanceType<typeof ExportStaticTokenManager>;
   }
 }

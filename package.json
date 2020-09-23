@@ -22,6 +22,8 @@
     "clean": "ets clean"
   },
   "dependencies": {
+    "@apla/clickhouse": "^1.6.4",
+    "dateformat": "^3.0.3",
     "egg": "^2.6.1",
     "egg-mongoose": "^3.3.0",
     "egg-scripts": "^2.6.0",

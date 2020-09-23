@@ -29,6 +29,33 @@ export default (appInfo: EggAppInfo) => {
     files: [
       'YOUR 7z FILES PATH',
     ],
+    tables: [
+      'tags',
+    ],
+    schemas: [
+      new Map<string, string>([
+        [
+          'Id', 'String',
+        ], [
+          'TagName', 'String',
+        ], [
+          'Count', 'String',
+        ], [
+          'ExcerptPostId', 'String',
+        ], [
+          'WikiPostId', 'String',
+        ], [
+          'CreatedAt', 'DateTime',
+        ],
+      ]),
+    ],
+  };
+
+  config.clickhouseServerConfig = {
+    host: 'localhost',
+    protocol: 'http:',
+    port: 8123,
+    format: 'JSON',
   };
 
   // the return config will combines to EggAppConfig

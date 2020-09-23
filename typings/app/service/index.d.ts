@@ -6,6 +6,7 @@ type AnyClass = new (...args: any[]) => any;
 type AnyFunc<T = any> = (...args: any[]) => T;
 type CanExportFunc = AnyFunc<Promise<any>> | AnyFunc<IterableIterator<any>>;
 type AutoInstanceType<T, U = T extends CanExportFunc ? T : T extends AnyFunc ? ReturnType<T> : T> = U extends AnyClass ? InstanceType<U> : U;
+import ExportClickhouse from '../../../app/service/clickhouse';
 import ExportDefaultProxy from '../../../app/service/default-proxy';
 import ExportRequestExecutor from '../../../app/service/request-executor';
 import ExportShellExecutor from '../../../app/service/shell-executor';
@@ -15,6 +16,7 @@ import ExportStaticTokenManager from '../../../app/service/static-token-manager'
 
 declare module 'egg' {
   interface IService {
+    clickhouse: AutoInstanceType<typeof ExportClickhouse>;
     defaultProxy: AutoInstanceType<typeof ExportDefaultProxy>;
     requestExecutor: AutoInstanceType<typeof ExportRequestExecutor>;
     shellExecutor: AutoInstanceType<typeof ExportShellExecutor>;

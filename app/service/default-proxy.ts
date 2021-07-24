@@ -4,11 +4,12 @@ import requestretry from 'requestretry';
 import { waitUntil } from '../util/utils';
 import { sprintf } from 'sprintf-js';
 
+// Use xiequ as default proxy
 export default class DefaultProxy extends Service implements Proxy {
 
-  private baseUrl = 'http://ip.ipjldl.com/index.php/api/entry?method=proxyServer.tiqu_api_url&packid=3&fa=0&dt=&groupid=0&fetch_key=&time=1&port=1&format=txt&ss=3&css=&dt=&pro=&city=&usertype=6&qty=%d'
-  private getWhiteListUrl = 'https://www.wanbianip.com/Users-whiteIpListNew.html?appid=%s&appkey=%s';
-  private putWhiteListUrl = 'https://www.wanbianip.com/Users-whiteIpAddNew.html?appid=%s&appkey=%s&whiteip=%s';
+  private baseUrl = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=%s&vkey=%s&num=%d&time=30&plat=1&re=0&type=1&so=1&ow=1&spl=1&addr=&db=1'
+  private getWhiteListUrl = 'https://www.xiequ.cn/IpWhiteList.aspx?uid=%s&ukey=%s&act=get';
+  private putWhiteListUrl = 'https://www.xiequ.cn/IpWhiteList.aspx?uid=%s&ukey=%s&act=add&ip=%s';
   private getSelfPublicIpUrl = 'http://txt.go.sohu.com/ip/soip';
   private inited = false;
 
@@ -20,7 +21,8 @@ export default class DefaultProxy extends Service implements Proxy {
   public async getProxy(num: number): Promise<string[]> {
     await waitUntil(() => this.inited);
     return new Promise(resolve => {
-      requestretry.get(sprintf(this.baseUrl, num), (_err, _response, body) => {
+      const url = sprintf(this.baseUrl, this.config.defaultProxy.appId, this.config.defaultProxy.appKey, num);
+      requestretry.get(url, (_err, _response, body) => {
         resolve(body.split('\n').map((url: string) => `http://${url}`));
       });
     });
@@ -39,12 +41,14 @@ export default class DefaultProxy extends Service implements Proxy {
   }
 
   private async init() {
+    // get public IP of local host
     const selfIp = await this.getSelfPublicIp();
     if (!selfIp) {
       this.inited = true;
       return;
     }
     this.logger.info(`Get self IP ${selfIp}`);
+    // get all whist list IP
     const whiteList = await this.getWhiteList();
     if (!whiteList) {
       this.inited = true;
@@ -52,7 +56,7 @@ export default class DefaultProxy extends Service implements Proxy {
     }
     this.logger.info(`Get white list ${whiteList}`);
     if (whiteList.indexOf(selfIp) < 0) {
-      // self ip not in white list
+      // local host IP not in white list, add into white list
       await this.addIpWhiteList(selfIp);
     }
     this.inited = true;
@@ -60,16 +64,13 @@ export default class DefaultProxy extends Service implements Proxy {
 
   private async getWhiteList(): Promise<string[]> {
     return new Promise(resolve => {
-      const url = sprintf(this.getWhiteListUrl, this.config.defaultProxy.appId, this.config.defaultProxy.appKey);
+      const url = sprintf(this.getWhiteListUrl, this.config.defaultProxy.appId, this.config.defaultProxy.whiteListKey);
       requestretry.get(url, (_err, _response, body: string) => {
         try {
-          const result = JSON.parse(body);
-          if (!result.success) {
-            return resolve();
-          }
-          return resolve(result.data);
+          const result = body;
+          return resolve(result.split(','));
         } catch {
-          resolve();
+          resolve([]);
         }
       });
     });
@@ -80,27 +81,28 @@ export default class DefaultProxy extends Service implements Proxy {
       requestretry.get(this.getSelfPublicIpUrl, (_err, _response, body: string) => {
         const m = body.match(/\d+\.\d+\.\d+\.\d+/g);
         if (m && m.length > 0) {
-          resolve(m[0]);
+          return resolve(m[0]);
         }
-        resolve();
+        resolve('');
       });
     });
   }
 
-  private async addIpWhiteList(ip: string) {
+  private async addIpWhiteList(ip: string): Promise<boolean> {
     return new Promise(resolve => {
-      const url = sprintf(this.putWhiteListUrl, this.config.defaultProxy.appId, this.config.defaultProxy.appKey, ip);
+      const url = sprintf(this.putWhiteListUrl, this.config.defaultProxy.appId, this.config.defaultProxy.whiteListKey, ip);
       requestretry.get(url, (_err, _response, body: string) => {
         try {
-          const result = JSON.parse(body);
-          if (!result.success) {
-            this.logger.error(`Put self IP into white list fail, message=${result.msg}`);
-          } else {
+          const result = body;
+          if (result === 'success') {
             this.logger.info(`Put self IP ${ip} to white list success.`);
+            resolve(true);
+          } else {
+            this.logger.error(`Put self IP into white list fail, message=${result}`);
+            resolve(false);
           }
-          resolve();
         } catch {
-          resolve();
+          resolve(false);
         }
       });
     });

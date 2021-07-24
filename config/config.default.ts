@@ -16,6 +16,14 @@ export default (appInfo: EggAppInfo) => {
   config.defaultProxy = {
     appId: 'APP_ID',
     appKey: 'APP_KEY',
+    whiteListKey: 'WHITE_LIST_KEY',
+  };
+
+  config.mongoose = {
+    client: {
+      url: 'mongodb://127.0.0.1/example',
+      options: {},
+    },
   };
 
   config.github_v3 = {

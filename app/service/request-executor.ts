@@ -83,8 +83,15 @@ export default class RequestExecutor extends Service {
         if (!option.userdata) {
           option.userdata = {};
         }
-        const [res, body] = await this.singleRequest(req, option);
-        await this.option.postProcessor(res, body, option, index);
+        try {
+          const result = await this.singleRequest(req, option);
+          if (result) {
+            const [res, body] = result;
+            await this.option.postProcessor(res, body, option, index);
+          }
+        } catch (e) {
+          this.ctx.logger.error(`Error on request ${e}`);
+        }
         retry = 0;
         this.requestCount++;
       }
@@ -94,6 +101,7 @@ export default class RequestExecutor extends Service {
       await waitFor(this.option.workerRetryInterval);
       retry++;
     }
+    this.ctx.logger.info(`Thread ${index} finished. Remain requests count is ${this.option.options.length}`);
   }
 
   private async getRequestInstance(proxy: string | undefined): Promise<any> {
@@ -138,7 +146,7 @@ export default class RequestExecutor extends Service {
           return this.singleRequest(r, option);
         }
         if (err) {
-          console.log(`Error ${err.message}`);
+          this.logger.error(`Error ${err.message}`);
           return resolve();
         }
         resolve([res, body]);

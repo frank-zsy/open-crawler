@@ -1,0 +1,147 @@
+/* eslint-disable array-bracket-spacing */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Context } from 'egg';
+
+const npmEntryPoint = 'https://registry.npmjs.org/';
+
+function calculateNextUpdateDate(dates: Date[]): Date {
+  // sort dates first, get average publish interval
+  dates.sort();
+  let interval = (dates[dates.length - 1].getTime() - dates[0].getTime()) / dates.length;
+  if (interval <= 7 * 24 * 3600 * 1000) {
+    interval = 7 * 24 * 3600 * 1000;
+  }
+  const lastPublishAt = dates[dates.length - 1];
+  const now = new Date().getTime();
+  // eslint-disable-next-line array-bracket-spacing
+  const fibonacciArr = [1, 2, 3, 5, 8, 13, 21, 34, 55];
+  let updateInterval = 0;
+  for (const f of fibonacciArr) {
+    updateInterval += interval * f;
+    if (lastPublishAt.getTime() + updateInterval > now) break;
+  }
+  while (lastPublishAt.getTime() + updateInterval < now) {
+    updateInterval += interval * fibonacciArr[fibonacciArr.length - 1];
+  }
+  return new Date(lastPublishAt.getTime() + updateInterval);
+}
+
+function trimData(data: any) {
+  if (!data || typeof data !== 'object') return;
+  for (const k of Object.keys(data)) {
+    if (['$', '.', 'readme'].some(s => k.startsWith(s))) {
+      delete data[k];
+    } else {
+      trimData(data[k]);
+    }
+  }
+}
+
+module.exports = {
+
+  schedule: {
+    cron: '0 */10 * * * *',
+    type: 'worker',
+    immediate: false,
+    disable: false,
+  },
+
+  async task(ctx: Context) {
+
+    try {
+
+      const records = await ctx.model.NpmRecord.aggregate([
+        {
+          $match: {
+            nextUpdateAt: {
+              $lt: new Date(),
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            id: 1,
+          },
+        },
+        {
+          $sample: {
+            size: 2000,
+          },
+        },
+      ]);
+
+      const options: any[] = [];
+
+      records.forEach(data => {
+        options.push({
+          url: `${npmEntryPoint}${data.id}`,
+          method: 'GET',
+          userdata: {
+            id: data.id,
+          },
+        });
+      });
+
+      let count = 0;
+      const requestExecutor = ctx.service.requestExecutor;
+      requestExecutor.setOption({
+        options,
+        batchSize: 20,
+        workerRetry: 8,
+        workerRetryInterval: 500,
+        proxyOption: ctx.service.defaultProxy,
+        retryOption: {
+          maxRetryTime: 1,
+        },
+        postProcessor: async (_r, body, option) => {
+          if (!body) {
+            ctx.logger.info('Request return empty body');
+            return;
+          }
+          const data = JSON.parse(body);
+
+          if (data.error && data.error === 'Not found') {
+            ctx.logger.info(`Package not found for ${option.userdata.id}`);
+            await ctx.model.NpmRecord.updateOne({ id: option.userdata.id }, {
+              detail: data,
+              lastUpdatedAt: new Date(),
+              nextUpdateAt: new Date(new Date().getTime() + 365 * 24 * 3600 * 1000),
+            });
+            return;
+          }
+          if (data.error) {
+            ctx.logger.error(`Data contains error, e=${data.error}`);
+            return;
+          }
+
+          const times = Object.keys(data.time).map(k => data.time[k]).map(d => new Date(d));
+          const nextUpdateAt = calculateNextUpdateDate(times);
+
+          trimData(data);
+
+          try {
+            await ctx.model.NpmRecord.updateOne({ id: data._id }, {
+              detail: data,
+              lastUpdatedAt: new Date(),
+              nextUpdateAt,
+            });
+          } catch (e) {
+            ctx.logger.error(`Error on updating record, e=${e}`);
+          }
+          count++;
+          if (count % 100 === 0) {
+            ctx.logger.info(`${count} records have been updated.`);
+          }
+        },
+      });
+
+      await requestExecutor.start();
+
+    } catch (e) {
+      //
+    }
+
+  },
+
+};

@@ -66,6 +66,10 @@ export default (appInfo: EggAppInfo) => {
     format: 'JSON',
   };
 
+  config.npmStat = {
+    path: './npm_stat.json',
+  };
+
   // the return config will combines to EggAppConfig
   return {
     ...config,

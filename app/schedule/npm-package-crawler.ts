@@ -1,6 +1,8 @@
 /* eslint-disable array-bracket-spacing */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Context } from 'egg';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import dateformat = require('dateformat');
 
 const npmEntryPoint = 'https://registry.npmjs.org/';
 
@@ -42,13 +44,30 @@ module.exports = {
   schedule: {
     cron: '0 */10 * * * *',
     type: 'worker',
-    immediate: false,
+    immediate: true,
     disable: false,
   },
 
   async task(ctx: Context) {
 
     try {
+
+      ctx.logger.info('Start to run update npm package task');
+
+      let stat: any = {
+        lastStartTime: dateformat(new Date(), 'yyyy-mm-dd HH:MM:ss'),
+      };
+
+      const allRecords = await ctx.model.NpmRecord.countDocuments({});
+      const updatedRecords = await ctx.model.NpmRecord.countDocuments({ detail: { $ne: null } });
+
+      if (existsSync(ctx.app.config.npmStat.path)) {
+        stat = JSON.parse(readFileSync(ctx.app.config.npmStat.path).toString());
+      }
+      stat.all_records = allRecords;
+      stat.updated_records = updatedRecords;
+      stat.last_update_date = dateformat(new Date(), 'yyyy-mm-dd HH:MM:ss');
+      writeFileSync(ctx.app.config.npmStat.path, JSON.stringify(stat));
 
       const records = await ctx.model.NpmRecord.aggregate([
         {

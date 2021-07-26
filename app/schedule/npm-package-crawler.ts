@@ -60,6 +60,7 @@ module.exports = {
 
       const allRecords = await ctx.model.NpmRecord.countDocuments({});
       const updatedRecords = await ctx.model.NpmRecord.countDocuments({ detail: { $ne: null } });
+      const githubRecords = await ctx.model.NpmRecord.countDocuments({ 'detail.repository.url': /github/ });
 
       if (existsSync(ctx.app.config.npmStat.path)) {
         stat = JSON.parse(readFileSync(ctx.app.config.npmStat.path).toString());
@@ -67,6 +68,7 @@ module.exports = {
       stat.all_records = allRecords;
       stat.updated_records = updatedRecords;
       stat.last_update_date = dateformat(new Date(), 'yyyy-mm-dd HH:MM:ss');
+      stat.github_records = githubRecords;
       writeFileSync(ctx.app.config.npmStat.path, JSON.stringify(stat));
 
       const records = await ctx.model.NpmRecord.aggregate([

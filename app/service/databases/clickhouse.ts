@@ -32,8 +32,7 @@ export class ClickhouseClient {
   public async init(db: string, tables: { name: string; schema: Map<string, string> }[]) {
     const getTableSchema = (map: Map<string, string>): string => {
       let ret = '';
-      // eslint-disable-next-line array-bracket-spacing
-      for (const [key, value] of map) {
+      for (const [ key, value ] of map) {
         ret += `\`${key}\` ${value},${EOL}`;
       }
       return ret.substring(0, ret.length - 2) + EOL;

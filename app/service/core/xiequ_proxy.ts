@@ -1,11 +1,10 @@
 import { Service, Context } from 'egg';
-import { Proxy } from './request-executor';
+import { Proxy } from './request_executor';
 import requestretry from 'requestretry';
-import { waitUntil } from '../util/utils';
 import { sprintf } from 'sprintf-js';
 
 // Use xiequ as default proxy
-export default class DefaultProxy extends Service implements Proxy {
+export default class XiequProxy extends Service implements Proxy {
 
   private baseUrl = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=%s&vkey=%s&num=%d&time=30&plat=1&re=0&type=1&so=1&ow=1&spl=1&addr=&db=1'
   private getWhiteListUrl = 'https://www.xiequ.cn/IpWhiteList.aspx?uid=%s&ukey=%s&act=get';
@@ -19,7 +18,7 @@ export default class DefaultProxy extends Service implements Proxy {
   }
 
   public async getProxy(num: number): Promise<string[]> {
-    await waitUntil(() => this.inited);
+    await this.ctx.service.core.utils.waitUntil(() => this.inited);
     return new Promise(resolve => {
       const url = sprintf(this.baseUrl, this.config.defaultProxy.appId, this.config.defaultProxy.appKey, num);
       requestretry.get(url, (_err, _response, body) => {

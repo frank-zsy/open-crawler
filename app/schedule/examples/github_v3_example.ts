@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Context } from 'egg';
 import requestretry from 'requestretry';
-import { maskString } from '../util/utils';
 
 module.exports = {
 
@@ -20,7 +19,7 @@ module.exports = {
     }
 
     // init token manager
-    const tokenMgr = ctx.service.staticTokenManager;
+    const tokenMgr = ctx.service.core.staticTokenManager;
     const tokens = ctx.app.config.github_v3.tokens;
     tokenMgr.setTokens(tokens, async token => {
       const invalidToken = {
@@ -37,7 +36,7 @@ module.exports = {
             'User-Agent': 'GitHub crawler',
           },
         }, (err, res, body) => {
-          const maskToken = maskString(token);
+          const maskToken = ctx.service.core.utils.maskString(token);
           if (err || res.statusCode !== 200) {
             ctx.logger.error(`Init token ${maskToken} failed, err is ${err}, status code is ${res.statusCode}`);
             return resolve(invalidToken);
@@ -77,7 +76,7 @@ module.exports = {
     });
 
     let totalIssueCount = 0;
-    const requestExecutor = ctx.service.requestExecutor;
+    const requestExecutor = ctx.service.core.requestExecutor;
     requestExecutor.setOption({
       options,
       // batchSize: 5,
@@ -195,7 +194,7 @@ module.exports = {
     });
 
     const startTime = new Date().getTime();
-    await ctx.service.requestExecutor.start();
+    await ctx.service.core.requestExecutor.start();
     ctx.logger.info(`All request done, total open issue count ${totalIssueCount}, total time cost ${new Date().getTime() - startTime}`);
   },
 

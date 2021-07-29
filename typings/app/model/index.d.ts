@@ -2,7 +2,7 @@
 // Do not modify this file!!!!!!!!!
 
 import 'egg';
-import ExportNpmRecord from '../../../app/model/npm-record';
+import ExportNpmRecord from '../../../app/model/npm_record';
 
 declare module 'egg' {
   interface IModel {

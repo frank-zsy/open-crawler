@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Context } from 'egg';
-import Unzip from '../util/unzip';
-import { readline, parseXml } from '../util/utils';
 import { join } from 'path';
 /* eslint-disable @typescript-eslint/no-var-requires */
 const dateformat = require('dateformat');
@@ -16,13 +14,12 @@ module.exports = {
   },
 
   async task(ctx: Context) {
-    const unzip = new Unzip();
     const files: string[] = ctx.app.config.unzip_example.files;
     const tables: string[] = ctx.app.config.unzip_example.tables;
     const schemas: Map<string, string>[] = ctx.app.config.unzip_example.schemas;
     const dbServerConfig = ctx.app.config.clickhouseServerConfig;
     const db = ctx.app.config.unzip_example.db;
-    const client = ctx.service.clickhouse.client(dbServerConfig);
+    const client = ctx.service.databases.clickhouse.client(dbServerConfig);
 
     // init tables
     await client.init(db, tables.map((t, i) => {
@@ -39,11 +36,8 @@ module.exports = {
         const table = tables[i];
         ctx.logger.info(`Start to process ${p}`);
         const filePath = join(ctx.app.config.unzip_example.basePath, p);
-        const f = await unzip.unzip7({
+        const f = await ctx.service.core.utils.unzip7({
           path: filePath,
-          logger: (msg: any, ...params: any[]) => {
-            ctx.logger.info(msg, ...params);
-          },
         });
         ctx.logger.info(`Extract ${f.length} file(s) from ${filePath}`);
         await Promise.all(f.map(async path => {
@@ -58,10 +52,10 @@ module.exports = {
             ctx.logger.info(fieldSet);
           });
           ctx.logger.info('Get stream done');
-          await readline(path, async (line, index) => {
+          await ctx.service.core.utils.readline(path, async (line, index) => {
             if (index <= 2) return;
             try {
-              const item = await parseXml<any>(line);
+              const item: any = await ctx.service.core.utils.parseXml(line);
               // write item in
               const insertItem = {
                 ...item.row.$,

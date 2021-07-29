@@ -1,5 +1,5 @@
 import { Service } from 'egg';
-import { ShellExecuteResult } from '../util/workers/shell-command-worker';
+import { ShellExecuteResult } from '../../workers/shell_command_worker';
 import { StaticPool, isTimeoutError } from 'node-worker-threads-pool';
 import { join } from 'path';
 
@@ -26,7 +26,7 @@ export default class ShellExecutor extends Service {
     }
     const pool = new StaticPool({
       size: option.batchSize ?? defaultOption.batchSize,
-      task: join(__dirname, '../util/workers/common-thread-worker.js'),
+      task: join(__dirname, '../util/workers/common_thread_worker.js'),
     });
     await Promise.all(option.options.map(async o => {
       try {
@@ -35,7 +35,7 @@ export default class ShellExecutor extends Service {
         }
         const result = (await pool.exec({
           command: o.command,
-          path: join(__dirname, '../util/workers/shell-command-worker.ts'),
+          path: join(__dirname, '../util/workers/shell_command_worker.ts'),
         }, option.timeout)) as ShellExecuteResult;
         if (option.postProcessor) {
           await option.postProcessor(result, o.command, o.userdata);

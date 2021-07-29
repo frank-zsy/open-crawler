@@ -20,3 +20,5 @@ test/**/*.map
 config/**/*.map
 config/config.local.ts
 config/config.prod.ts
+
+local_data/

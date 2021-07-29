@@ -1,8 +1,6 @@
-/* eslint-disable array-bracket-spacing */
 import requestretry from 'requestretry';
 import { extend } from 'underscore';
 import { Service } from 'egg';
-import { waitFor } from '../util/utils';
 
 interface RequestRetryOption {
   maxRetryTime: number;
@@ -86,7 +84,7 @@ export default class RequestExecutor extends Service {
         try {
           const result = await this.singleRequest(req, option);
           if (result) {
-            const [res, body] = result;
+            const [ res, body ] = result;
             await this.option.postProcessor(res, body, option, index);
           }
         } catch (e) {
@@ -98,7 +96,7 @@ export default class RequestExecutor extends Service {
     };
     while (retry < this.option.workerRetry) {
       await work();
-      await waitFor(this.option.workerRetryInterval);
+      await this.ctx.service.core.utils.waitFor(this.option.workerRetryInterval);
       retry++;
     }
     this.ctx.logger.info(`Thread ${index} finished. Remain requests count is ${this.option.options.length}`);
@@ -119,7 +117,7 @@ export default class RequestExecutor extends Service {
     return new Promise(async resolve => {
       const beforeCheck = await this.option.beforeRequest(option);
       if (!beforeCheck) {
-        return resolve([undefined, undefined]);
+        return resolve([ undefined, undefined ]);
       }
       let needRefreshProxy = false;
       const options = {
@@ -147,9 +145,9 @@ export default class RequestExecutor extends Service {
         }
         if (err) {
           this.logger.error(`Error ${err.message}`);
-          return resolve();
+          return resolve([ false, undefined ]);
         }
-        resolve([res, body]);
+        resolve([ res, body ]);
       });
     });
   }

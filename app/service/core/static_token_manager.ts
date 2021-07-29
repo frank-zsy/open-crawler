@@ -1,5 +1,4 @@
 import { Service } from 'egg';
-import { waitUntil, maskString } from '../util/utils';
 
 interface Token {
   valid: boolean;
@@ -35,7 +34,7 @@ export default class StaticTokenManager extends Service {
   public updateToken(token: string, remaining: number, reset: number) {
     const index = this.tokens.findIndex(t => t.token === token);
     if (index < 0) {
-      this.logger.error(`Token ${maskString(token)} not found`);
+      this.logger.error(`Token ${this.ctx.service.core.utils.maskString(token)} not found`);
       return;
     }
     this.tokens[index].remaining = remaining;
@@ -43,12 +42,12 @@ export default class StaticTokenManager extends Service {
   }
 
   public async getToken(): Promise<string> {
-    await waitUntil(() => this.inited);
+    await this.ctx.service.core.utils.waitUntil(() => this.inited);
     if (this.tokens.filter(t => t.valid).length === 0) {
       throw new Error('No valid token found');
     }
     let token: any = null;
-    await waitUntil(() => {
+    await this.ctx.service.core.utils.waitUntil(() => {
       const index = this.tokens.findIndex(t => t.valid && (t.remaining > 0));
       if (index < 0) {
         return false;

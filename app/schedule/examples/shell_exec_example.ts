@@ -18,7 +18,7 @@ sleep 1`;
       commands.push(command);
     }
 
-    await ctx.service.shellExecutor.run({
+    await ctx.service.core.shellExecutor.run({
       options: commands.map((c, i) => {
         return {
           command: c,

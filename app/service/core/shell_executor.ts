@@ -26,7 +26,7 @@ export default class ShellExecutor extends Service {
     }
     const pool = new StaticPool({
       size: option.batchSize ?? defaultOption.batchSize,
-      task: join(__dirname, '../util/workers/common_thread_worker.js'),
+      task: join(__dirname, '../../workers/common_thread_worker.js'),
     });
     await Promise.all(option.options.map(async o => {
       try {
@@ -35,7 +35,7 @@ export default class ShellExecutor extends Service {
         }
         const result = (await pool.exec({
           command: o.command,
-          path: join(__dirname, '../util/workers/shell_command_worker.ts'),
+          path: join(__dirname, '../../workers/shell_command_worker.ts'),
         }, option.timeout)) as ShellExecuteResult;
         if (option.postProcessor) {
           await option.postProcessor(result, o.command, o.userdata);

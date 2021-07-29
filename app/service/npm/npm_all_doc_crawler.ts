@@ -4,6 +4,8 @@ import { existsSync, readFileSync, renameSync } from 'fs';
 export default class NpmAllDocCrawler extends Service {
 
   public async crawl() {
+    if (!this.ctx.app.config.crawlers.npm.allDocCrawler.enable) return;
+
     this.ctx.logger.info('Start to download npm all docs.');
     const tmpFilePath = './local_data/_tmp_docs';
     const distFilePath = './local_data/all_docs';

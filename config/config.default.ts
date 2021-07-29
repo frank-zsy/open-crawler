@@ -66,8 +66,18 @@ export default (appInfo: EggAppInfo) => {
     format: 'JSON',
   };
 
-  config.npmStat = {
-    path: './npm_stat.json',
+  config.crawlers = {
+    npm: {
+      allDocCrawler: {
+        enable: false,
+      },
+      updateStatus: {
+        enable: false,
+      },
+      packageCrawler: {
+        enable: false,
+      },
+    },
   };
 
   // the return config will combines to EggAppConfig

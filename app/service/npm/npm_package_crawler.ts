@@ -6,6 +6,8 @@ export default class NpmPackageCrawler extends Service {
   private npmEntryPoint = 'https://registry.npmjs.org/';
 
   public async crawl() {
+    if (!this.ctx.app.config.crawlers.npm.packageCrawler.enable) return;
+
     try {
       this.ctx.logger.info('Start to run update npm package task');
 
@@ -135,6 +137,7 @@ export default class NpmPackageCrawler extends Service {
   }
 
   public async updateStatus() {
+    if (!this.ctx.app.config.crawlers.npm.updateStatus.enable) return;
     try {
       this.logger.info('Start to update npm status');
 

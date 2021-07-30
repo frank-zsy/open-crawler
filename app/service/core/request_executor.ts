@@ -88,7 +88,7 @@ export default class RequestExecutor extends Service {
             await this.option.postProcessor(res, body, option, index);
           }
         } catch (e) {
-          this.ctx.logger.error(`Error on request ${e}`);
+          this.ctx.logger.error(`Error on request option=${option}, e=${e}`);
         }
         retry = 0;
         this.requestCount++;

@@ -32,14 +32,16 @@ export default class NpmAllDocCrawler extends Service {
     this.ctx.logger.info(`The collection has ${await this.ctx.model.NpmRecord.count()} records`);
     this.ctx.logger.info('Start to add records into collection');
 
+    // TODO need to create collection and index automatically to avoid error
     // add rows into mongodb
     const batch = 50000;
     this.ctx.logger.info(records.rows.length / batch);
     for (let i = 0; i < records.rows.length / batch; i++) {
       try {
-        await this.ctx.model.NpmRecord.insertMany(records.rows.slice(i * batch, (i + 1) * batch).map(r => {
+        await this.ctx.model.NpmMeta.insertMany(records.rows.slice(i * batch, (i + 1) * batch).map(r => {
           return {
-            id: r.id,
+            name: r.id,
+            status: 'New',
             lastUpdatedAt: new Date(),
             nextUpdateAt: new Date(),
           };
@@ -50,6 +52,6 @@ export default class NpmAllDocCrawler extends Service {
       }
     }
 
-    this.ctx.logger.info(`Records inited done. Total records count is ${await this.ctx.model.NpmRecord.count()}`);
+    this.ctx.logger.info(`Npm meta inited done. Total metas count is ${await this.ctx.model.NpmMeta.count()}`);
   }
 }

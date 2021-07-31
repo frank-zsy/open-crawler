@@ -16,6 +16,8 @@ import ExportCoreXiequProxy from '../../../app/service/core/xiequ_proxy';
 import ExportDatabasesClickhouse from '../../../app/service/databases/clickhouse';
 import ExportNpmNpmAllDocCrawler from '../../../app/service/npm/npm_all_doc_crawler';
 import ExportNpmNpmPackageCrawler from '../../../app/service/npm/npm_package_crawler';
+import ExportPipPipAllPkgCrawler from '../../../app/service/pip/pip_all_pkg_crawler';
+import ExportPipPipPackageCrawler from '../../../app/service/pip/pip_package_crawler';
 import ExportStackoverflowStackoverflow from '../../../app/service/stackoverflow/stackoverflow';
 
 declare module 'egg' {
@@ -35,6 +37,10 @@ declare module 'egg' {
     npm: {
       npmAllDocCrawler: AutoInstanceType<typeof ExportNpmNpmAllDocCrawler>;
       npmPackageCrawler: AutoInstanceType<typeof ExportNpmNpmPackageCrawler>;
+    }
+    pip: {
+      pipAllPkgCrawler: AutoInstanceType<typeof ExportPipPipAllPkgCrawler>;
+      pipPackageCrawler: AutoInstanceType<typeof ExportPipPipPackageCrawler>;
     }
     stackoverflow: {
       stackoverflow: AutoInstanceType<typeof ExportStackoverflowStackoverflow>;

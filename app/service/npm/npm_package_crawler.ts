@@ -11,7 +11,7 @@ export default class NpmPackageCrawler extends Service {
     try {
       this.ctx.logger.info('Start to run update npm package task');
 
-      const records = await this.ctx.model.NpmRecord.aggregate([
+      const records = await this.ctx.model.NpmMeta.aggregate([
         {
           $match: {
             nextUpdateAt: {
@@ -22,12 +22,12 @@ export default class NpmPackageCrawler extends Service {
         {
           $project: {
             _id: 0,
-            id: 1,
+            name: 1,
           },
         },
         {
           $sample: {
-            size: 2000,
+            size: 700,
           },
         },
       ]);
@@ -36,10 +36,10 @@ export default class NpmPackageCrawler extends Service {
 
       records.forEach(data => {
         options.push({
-          url: `${this.npmEntryPoint}${data.id}`,
+          url: `${this.npmEntryPoint}${data.name}`,
           method: 'GET',
           userdata: {
-            id: data.id,
+            name: data.name,
           },
         });
       });
@@ -51,23 +51,29 @@ export default class NpmPackageCrawler extends Service {
         batchSize: 20,
         workerRetry: 8,
         workerRetryInterval: 500,
-        proxyOption: this.ctx.service.core.xiequProxy,
         retryOption: {
           maxRetryTime: 1,
         },
         postProcessor: async (_r, body, option) => {
           if (!body) {
-            this.ctx.logger.info('Request return empty body');
+            this.ctx.logger.info(`Request return empty body for ${option.userdata.name}`);
             return;
           }
-          const data = JSON.parse(body);
+
+          let data: any;
+          try {
+            data = JSON.parse(body);
+          } catch (e) {
+            this.logger.info(`JSON parse for ${option.userdata.name} error, body=${body}`);
+            return;
+          }
 
           if (data.error && data.error === 'Not found') {
-            this.ctx.logger.info(`Package not found for ${option.userdata.id}`);
-            await this.ctx.model.NpmRecord.updateOne({ id: option.userdata.id }, {
-              detail: data,
+            this.ctx.logger.info(`Package not found for ${option.userdata.name}`);
+            await this.ctx.model.NpmMeta.updateOne({ name: option.userdata.name }, {
+              status: 'NotFound',
               lastUpdatedAt: new Date(),
-              nextUpdateAt: new Date(new Date().getTime() + 365 * 24 * 3600 * 1000),
+              nextUpdateAt: new Date(new Date().getTime() + 60 * 24 * 3600 * 1000),
             });
             return;
           }
@@ -76,17 +82,39 @@ export default class NpmPackageCrawler extends Service {
             return;
           }
 
+          const created = data.time.created;
+          const modified = data.time.modified;
+          const releases: {version: string; time: Date}[] = [];
+          for (const k of Object.keys(data.time)) {
+            if ([ 'created', 'modified' ].some(v => k === v)) continue;
+            releases.push({
+              version: k,
+              time: new Date(data.time[k]),
+            });
+          }
           const times = Object.keys(data.time).map(k => data.time[k]).map(d => new Date(d));
           const nextUpdateAt = this.calculateNextUpdateDate(times);
 
           this.trimData(data);
 
           try {
-            await this.ctx.model.NpmRecord.updateOne({ id: data._id }, {
-              detail: data,
+            await this.ctx.model.NpmMeta.updateOne({ name: option.userdata.name }, {
+              releases,
+              status: 'Normal',
+              created,
+              modified,
               lastUpdatedAt: new Date(),
               nextUpdateAt,
             });
+            for (const release of releases) {
+              await this.ctx.model.NpmRecord.updateOne({ name: option.userdata.name, version: release.version }, {
+                $set: {
+                  detail: data.versions[release.version],
+                },
+              }, {
+                upsert: true,
+              });
+            }
           } catch (e) {
             this.ctx.logger.error(`Error on updating record, e=${e}`);
           }
@@ -128,7 +156,7 @@ export default class NpmPackageCrawler extends Service {
   private trimData(data: any) {
     if (!data || typeof data !== 'object') return;
     for (const k of Object.keys(data)) {
-      if ([ '$', '.', 'readme' ].some(s => k.startsWith(s))) {
+      if ([ '$', '.' ].some(s => k.startsWith(s))) {
         delete data[k];
       } else {
         this.trimData(data[k]);
@@ -146,19 +174,52 @@ export default class NpmPackageCrawler extends Service {
       if (!stat) stat = {};
 
       const [ allRecords, updatedRecords, githubRecords, gitlabRecords, giteeRecords ] = await Promise.all([
-        this.ctx.model.NpmRecord.countDocuments({}),
-        this.ctx.model.NpmRecord.countDocuments({ detail: { $ne: null } }),
-        this.ctx.model.NpmRecord.countDocuments({ 'detail.repository.url': /github\.com/ }),
-        this.ctx.model.NpmRecord.countDocuments({ 'detail.repository.url': /gitlab\.com/ }),
-        this.ctx.model.NpmRecord.countDocuments({ 'detail.repository.url': /gitee\.com/ }),
+        this.ctx.model.NpmMeta.countDocuments({}),
+        this.ctx.model.NpmMeta.countDocuments({ status: 'Normal' }),
+        this.ctx.model.NpmRecord.aggregate([{
+          $group: {
+            _id: '$name',
+            detail: { $first: '$detail' },
+          },
+        }, {
+          $match: {
+            'detail.repository.url': /github.com/,
+          },
+        }, {
+          $count: 'count',
+        }]),
+        this.ctx.model.NpmRecord.aggregate([{
+          $group: {
+            _id: '$name',
+            detail: { $first: '$detail' },
+          },
+        }, {
+          $match: {
+            'detail.repository.url': /gitlab.com/,
+          },
+        }, {
+          $count: 'count',
+        }]),
+        this.ctx.model.NpmRecord.aggregate([{
+          $group: {
+            _id: '$name',
+            detail: { $first: '$detail' },
+          },
+        }, {
+          $match: {
+            'detail.repository.url': /gitee.com/,
+          },
+        }, {
+          $count: 'count',
+        }]),
       ]);
 
       stat.allRecords = allRecords;
       stat.updatedRecords = updatedRecords;
       stat.lastUpdateDate = dateformat(new Date(), 'yyyy-mm-dd HH:MM:ss');
-      stat.githubRecords = githubRecords;
-      stat.gitlabRecords = gitlabRecords;
-      stat.giteeRecords = giteeRecords;
+      stat.githubRecords = githubRecords[0].count;
+      stat.gitlabRecords = gitlabRecords[0].count;
+      stat.giteeRecords = giteeRecords[0].count;
 
       this.logger.info(`Get status done, status=${JSON.stringify(stat)}`);
       this.ctx.app.cache.set(cacheKey, stat);

@@ -88,7 +88,7 @@ export default class RequestExecutor extends Service {
             await this.option.postProcessor(res, body, option, index);
           }
         } catch (e) {
-          this.ctx.logger.error(`Error on request option=${option}, e=${e}`);
+          this.ctx.logger.error(`Error on request option=${JSON.stringify(option)}, e=${e}`);
         }
         retry = 0;
         this.requestCount++;
@@ -99,7 +99,7 @@ export default class RequestExecutor extends Service {
       await this.ctx.service.core.utils.waitFor(this.option.workerRetryInterval);
       retry++;
     }
-    this.ctx.logger.info(`Thread ${index} finished. Remain requests count is ${this.option.options.length}`);
+    // this.ctx.logger.info(`Thread ${index} finished. Remain requests count is ${this.option.options.length}`);
   }
 
   private async getRequestInstance(proxy: string | undefined): Promise<any> {

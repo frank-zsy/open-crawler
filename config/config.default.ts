@@ -78,6 +78,17 @@ export default (appInfo: EggAppInfo) => {
         enable: false,
       },
     },
+    pip: {
+      allPkgCrawler: {
+        enable: false,
+      },
+      updateStatus: {
+        enable: false,
+      },
+      packageCrawler: {
+        enable: false,
+      },
+    },
   };
 
   // the return config will combines to EggAppConfig

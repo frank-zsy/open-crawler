@@ -3,14 +3,15 @@ import { Context } from 'egg';
 module.exports = {
 
   schedule: {
-    // update on everyday 1am
-    cron: '0 0 1 * * *',
+    cron: '0 */10 * * * *',
     type: 'worker',
     immediate: false,
     disable: false,
   },
 
   async task(ctx: Context) {
-    await ctx.service.npm.npmAllDocCrawler.crawl();
+    ctx.service.pip.pipPackageCrawler.updateStatus();
+    ctx.service.pip.pipPackageCrawler.crawl();
   },
+
 };

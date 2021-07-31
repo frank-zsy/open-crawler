@@ -27,7 +27,7 @@ export default class NpmPackageCrawler extends Service {
         },
         {
           $sample: {
-            size: 700,
+            size: 2000,
           },
         },
       ]);

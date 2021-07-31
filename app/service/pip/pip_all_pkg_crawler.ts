@@ -38,7 +38,7 @@ export default class PipAllPkgCrawler extends Service {
       const matchResult = content.match(/<a.*>(.*)?<\/a>/g);
 
       if (!matchResult) {
-        this.logger.info(`No pkg found in the page, content=${content}`);
+        this.logger.info(`No pkg found in the page, content=${content.slice(500)}`);
         return;
       }
 
@@ -59,9 +59,10 @@ export default class PipAllPkgCrawler extends Service {
       this.logger.info(`Gonna insert ${Math.ceil(pkgNames.length / batch)} batches into collection.`);
       for (let i = 0; i < pkgNames.length / batch; i++) {
         try {
-          await this.ctx.model.PipRecord.insertMany(pkgNames.slice(i * batch, (i + 1) * batch).map(name => {
+          await this.ctx.model.PipMeta.insertMany(pkgNames.slice(i * batch, (i + 1) * batch).map(name => {
             return {
               name,
+              status: 'New',
               lastUpdatedAt: new Date(),
               nextUpdateAt: new Date(),
             };

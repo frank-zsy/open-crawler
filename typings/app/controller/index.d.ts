@@ -3,9 +3,11 @@
 
 import 'egg';
 import ExportNpm from '../../../app/controller/npm';
+import ExportPip from '../../../app/controller/pip';
 
 declare module 'egg' {
   interface IController {
     npm: ExportNpm;
+    pip: ExportPip;
   }
 }

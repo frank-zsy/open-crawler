@@ -263,7 +263,13 @@ export default class NpmPackageCrawler extends Service {
         this.ctx.model.PipMeta.countDocuments({ status: 'Normal' }),
         this.ctx.model.PipRecord.aggregate([{
           $match: {
-            'detail.info.project_urls.Source': /github.com/,
+            $or: [
+              {
+                'detail.info.project_urls.Source': /github.com/,
+              }, {
+                'detail.info.home_page': /github.com/,
+              },
+            ],
           },
         }, {
           $group: {
@@ -275,7 +281,13 @@ export default class NpmPackageCrawler extends Service {
         }]),
         this.ctx.model.PipRecord.aggregate([{
           $match: {
-            'detail.info.project_urls.Source': /gitlab.com/,
+            $or: [
+              {
+                'detail.info.project_urls.Source': /gitlab.com/,
+              }, {
+                'detail.info.home_page': /gitlab.com/,
+              },
+            ],
           },
         }, {
           $group: {
@@ -287,7 +299,13 @@ export default class NpmPackageCrawler extends Service {
         }]),
         this.ctx.model.PipRecord.aggregate([{
           $match: {
-            'detail.info.project_urls.Source': /gitee.com/,
+            $or: [
+              {
+                'detail.info.project_urls.Source': /gitee.com/,
+              }, {
+                'detail.info.home_page': /gitee.com/,
+              },
+            ],
           },
         }, {
           $group: {

@@ -177,37 +177,34 @@ export default class NpmPackageCrawler extends Service {
         this.ctx.model.NpmMeta.countDocuments({}),
         this.ctx.model.NpmMeta.countDocuments({ status: 'Normal' }),
         this.ctx.model.NpmRecord.aggregate([{
-          $group: {
-            _id: '$name',
-            detail: { $first: '$detail' },
-          },
-        }, {
           $match: {
             'detail.repository.url': /github.com/,
           },
         }, {
+          $group: {
+            _id: '$name',
+          },
+        }, {
           $count: 'count',
         }]),
         this.ctx.model.NpmRecord.aggregate([{
-          $group: {
-            _id: '$name',
-            detail: { $first: '$detail' },
-          },
-        }, {
           $match: {
             'detail.repository.url': /gitlab.com/,
           },
         }, {
+          $group: {
+            _id: '$name',
+          },
+        }, {
           $count: 'count',
         }]),
         this.ctx.model.NpmRecord.aggregate([{
-          $group: {
-            _id: '$name',
-            detail: { $first: '$detail' },
-          },
-        }, {
           $match: {
             'detail.repository.url': /gitee.com/,
+          },
+        }, {
+          $group: {
+            _id: '$name',
           },
         }, {
           $count: 'count',

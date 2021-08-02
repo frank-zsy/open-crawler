@@ -274,7 +274,6 @@ export default class NpmPackageCrawler extends Service {
         }, {
           $group: {
             _id: '$name',
-            detail: { $first: '$detail' },
           },
         }, {
           $count: 'count',
@@ -292,7 +291,6 @@ export default class NpmPackageCrawler extends Service {
         }, {
           $group: {
             _id: '$name',
-            detail: { $first: '$detail' },
           },
         }, {
           $count: 'count',
@@ -310,7 +308,6 @@ export default class NpmPackageCrawler extends Service {
         }, {
           $group: {
             _id: '$name',
-            detail: { $first: '$detail' },
           },
         }, {
           $count: 'count',

@@ -14,6 +14,7 @@ import ExportCoreStaticTokenManager from '../../../app/service/core/static_token
 import ExportCoreUtils from '../../../app/service/core/utils';
 import ExportCoreXiequProxy from '../../../app/service/core/xiequ_proxy';
 import ExportDatabasesClickhouse from '../../../app/service/databases/clickhouse';
+import ExportMavenMavenIndexCrawler from '../../../app/service/maven/maven_index_crawler';
 import ExportNpmNpmAllDocCrawler from '../../../app/service/npm/npm_all_doc_crawler';
 import ExportNpmNpmPackageCrawler from '../../../app/service/npm/npm_package_crawler';
 import ExportPipPipAllPkgCrawler from '../../../app/service/pip/pip_all_pkg_crawler';
@@ -33,6 +34,9 @@ declare module 'egg' {
     }
     databases: {
       clickhouse: AutoInstanceType<typeof ExportDatabasesClickhouse>;
+    }
+    maven: {
+      mavenIndexCrawler: AutoInstanceType<typeof ExportMavenMavenIndexCrawler>;
     }
     npm: {
       npmAllDocCrawler: AutoInstanceType<typeof ExportNpmNpmAllDocCrawler>;

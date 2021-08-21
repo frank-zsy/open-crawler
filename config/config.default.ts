@@ -89,6 +89,12 @@ export default (appInfo: EggAppInfo) => {
         enable: false,
       },
     },
+    maven: {
+      mavenIndexCrawler: {
+        enable: false,
+        marpleBaseUrl: 'http://127.0.0.1:8080/',
+      },
+    },
   };
 
   // the return config will combines to EggAppConfig

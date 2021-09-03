@@ -6,6 +6,8 @@ type AnyClass = new (...args: any[]) => any;
 type AnyFunc<T = any> = (...args: any[]) => T;
 type CanExportFunc = AnyFunc<Promise<any>> | AnyFunc<IterableIterator<any>>;
 type AutoInstanceType<T, U = T extends CanExportFunc ? T : T extends AnyFunc ? ReturnType<T> : T> = U extends AnyClass ? InstanceType<U> : U;
+import ExportComposerComposerAllPkgCrawler from '../../../app/service/composer/composer_all_pkg_crawler';
+import ExportComposerComposerPackageCrawler from '../../../app/service/composer/composer_package_crawler';
 import ExportCoreParallelExecutor from '../../../app/service/core/parallel_executor';
 import ExportCoreRequestExecutor from '../../../app/service/core/request_executor';
 import ExportCoreShellExecutor from '../../../app/service/core/shell_executor';
@@ -23,6 +25,10 @@ import ExportStackoverflowStackoverflow from '../../../app/service/stackoverflow
 
 declare module 'egg' {
   interface IService {
+    composer: {
+      composerAllPkgCrawler: AutoInstanceType<typeof ExportComposerComposerAllPkgCrawler>;
+      composerPackageCrawler: AutoInstanceType<typeof ExportComposerComposerPackageCrawler>;
+    }
     core: {
       parallelExecutor: AutoInstanceType<typeof ExportCoreParallelExecutor>;
       requestExecutor: AutoInstanceType<typeof ExportCoreRequestExecutor>;

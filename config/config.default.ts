@@ -95,6 +95,17 @@ export default (appInfo: EggAppInfo) => {
         marpleBaseUrl: 'http://127.0.0.1:8080/',
       },
     },
+    composer: {
+      allPkgCrawler: {
+        enable: false,
+      },
+      updateStatus: {
+        enable: false,
+      },
+      packageCrawler: {
+        enable: false,
+      },
+    },
   };
 
   // the return config will combines to EggAppConfig

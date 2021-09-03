@@ -10,7 +10,7 @@
 
 HTTP 操作器（request-executor）主要帮助业务层管理 HTTP 请求，可支持并发、动态添加请求、动态 IP 代理支持等能力。
 
-在框架中可直接使用 `ctx.service.requestExecutor` 对象进行 HTTP 请求操作，其暴露三个方法用于外部使用，分别为 `setOption`, `appendOptions` 与 `start`。具体使用可参考[GitHub v3 示例](./app/schedule/github_v3_example.ts)。
+在框架中可直接使用 `ctx.service.requestExecutor` 对象进行 HTTP 请求操作，其暴露三个方法用于外部使用，分别为 `setOption`, `appendOptions` 与 `start`。具体使用可参考[GitHub v3 示例](./app/schedule/examples/github_v3_example.ts)。
 
 ### setOption
 

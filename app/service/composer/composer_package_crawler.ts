@@ -3,7 +3,7 @@ import dateformat = require('dateformat');
 
 export default class NpmPackageCrawler extends Service {
 
-  private composerPackageUrl = 'https://repo.packagist.org/p2/';
+  private composerPackageUrl = 'https://packagist.org/packages/';
 
   public async crawl() {
     if (!this.ctx.app.config.crawlers.composer.packageCrawler.enable) return;
@@ -68,15 +68,25 @@ export default class NpmPackageCrawler extends Service {
             return;
           }
 
-          if (!data.packages) {
-            this.logger.info(`Data type error, body = ${body}, statusCode = ${_r.statusCode}`);
+          if (data && data.message === 'Pagckage not found') {
+            this.ctx.logger.info(`Package not found for ${option.userdata.name}`);
+            await this.ctx.model.ComposerMeta.updateOne({ name: option.userdata.name }, {
+              status: 'NotFound',
+              lastUpdatedAt: new Date(),
+              nextUpdateAt: new Date(new Date().getTime() + 60 * 24 * 3600 * 1000),
+            });
             return;
           }
 
-          const releases: {version: string; time: Date}[] = data.packages[option.userdata.name].map(v => {
+          if (!data.package || !data.package.versions) {
+            this.logger.info(`Data type error for ${option.userdata.name}, body = ${body}, statusCode = ${_r.statusCode}`);
+            return;
+          }
+
+          const releases: {version: string; time: Date}[] = Object.keys(data.package.versions).map(v => {
             return {
-              version: v.version,
-              time: v.time,
+              version: v,
+              time: data.package.versions[v].time,
             };
           });
           if (releases.length === 0) {
@@ -97,10 +107,10 @@ export default class NpmPackageCrawler extends Service {
               lastUpdatedAt: new Date(),
               nextUpdateAt,
             });
-            for (const release of data.packages[option.userdata.name]) {
-              await this.ctx.model.ComposerRecord.updateOne({ name: option.userdata.name, version: release.version }, {
+            for (const v of Object.keys(data.package.versions)) {
+              await this.ctx.model.ComposerRecord.updateOne({ name: option.userdata.name, version: v }, {
                 $set: {
-                  detail: release,
+                  detail: data.package.versions[v],
                 },
               }, {
                 upsert: true,

@@ -66,6 +66,23 @@ export default (appInfo: EggAppInfo) => {
     format: 'JSON',
   };
 
+  config.clickhouse = {
+    serverConfig: {
+      host: process.env.CLICKHOUSE_SERVER || 'clickhouse',
+      protocol: 'http:',
+      port: 8123,
+      format: 'JSON',
+      user: process.env.CLICKHOUSE_USER || 'USER',
+      password: process.env.CLICKHOUSE_PASSWORD || 'PASSWORD',
+    },
+    getDb: (): string => {
+      return 'github_log';
+    },
+    getTable: (fileName: string): string => {
+      return `year${fileName.substring(0, 4)}`;
+    },
+  };
+
   config.crawlers = {
     npm: {
       allDocCrawler: {
@@ -103,6 +120,14 @@ export default (appInfo: EggAppInfo) => {
         enable: false,
       },
       packageCrawler: {
+        enable: false,
+      },
+    },
+    githubUser: {
+      githubUserInfoCrawler: {
+        enable: false,
+      },
+      githubUserFollowCrawler: {
         enable: false,
       },
     },

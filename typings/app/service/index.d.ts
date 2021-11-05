@@ -1,4 +1,4 @@
-// This file is created by egg-ts-helper@1.25.8
+// This file is created by egg-ts-helper@1.29.1
 // Do not modify this file!!!!!!!!!
 
 import 'egg';
@@ -16,6 +16,8 @@ import ExportCoreStaticTokenManager from '../../../app/service/core/static_token
 import ExportCoreUtils from '../../../app/service/core/utils';
 import ExportCoreXiequProxy from '../../../app/service/core/xiequ_proxy';
 import ExportDatabasesClickhouse from '../../../app/service/databases/clickhouse';
+import ExportGithubUserGithubUserCrawler from '../../../app/service/github_user/github_user_crawler';
+import ExportGithubUserGithubUserFollow from '../../../app/service/github_user/github_user_follow';
 import ExportMavenMavenIndexCrawler from '../../../app/service/maven/maven_index_crawler';
 import ExportNpmNpmAllDocCrawler from '../../../app/service/npm/npm_all_doc_crawler';
 import ExportNpmNpmPackageCrawler from '../../../app/service/npm/npm_package_crawler';
@@ -40,6 +42,10 @@ declare module 'egg' {
     }
     databases: {
       clickhouse: AutoInstanceType<typeof ExportDatabasesClickhouse>;
+    }
+    githubUser: {
+      githubUserCrawler: AutoInstanceType<typeof ExportGithubUserGithubUserCrawler>;
+      githubUserFollow: AutoInstanceType<typeof ExportGithubUserGithubUserFollow>;
     }
     maven: {
       mavenIndexCrawler: AutoInstanceType<typeof ExportMavenMavenIndexCrawler>;

@@ -40,13 +40,15 @@ export default class GitHubUserFollowCrawler extends Service {
         if (!userInfo) {
           continue;
         }
-        const userFollowing = await dc.user.following(login);
-        const userFollower = await dc.user.follower(login);
+        const [ userFollowing, userFollower ] = await Promise.all([
+          dc.user.following(login), dc.user.follower(login),
+        ]);
         const user = {
           id: userInfo.databaseId,
           info: userInfo,
           followers: userFollower,
           following: userFollowing,
+          lastUpdatedAt: new Date(),
           nextUpdateAt: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
         };
         try {

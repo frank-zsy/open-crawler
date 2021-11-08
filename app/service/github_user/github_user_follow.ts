@@ -44,9 +44,12 @@ export default class GitHubUserFollowCrawler extends Service {
           dc.user.following(login), dc.user.follower(login),
         ]);
         const info = {
-          basicInfo: userInfo,
-          followers: userFollower,
-          following: userFollowing,
+          basicInfo: {
+            login,
+            ...userInfo,
+          },
+          followers: userFollower.map(f => f.databaseId),
+          following: userFollowing.map(f => f.databaseId),
           time: new Date(),
         };
         try {

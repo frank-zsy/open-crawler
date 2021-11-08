@@ -43,16 +43,20 @@ export default class GitHubUserFollowCrawler extends Service {
         const [ userFollowing, userFollower ] = await Promise.all([
           dc.user.following(login), dc.user.follower(login),
         ]);
-        const user = {
-          id: userInfo.databaseId,
-          info: userInfo,
+        const info = {
+          basicInfo: userInfo,
           followers: userFollower,
           following: userFollowing,
-          lastUpdatedAt: new Date(),
-          nextUpdateAt: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
+          time: new Date(),
         };
         try {
-          await this.ctx.model.GithubUser.updateOne({ name: login }, user);
+          await this.ctx.model.GithubUser.updateOne({ name: login }, {
+            $push: { info },
+            $set: {
+              lastUpdatedAt: new Date(),
+              nextUpdateAt: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
+            },
+          });
         } catch (e) {
           this.ctx.logger.error(`Error on updating record login=${login}, e=${e}`);
         }

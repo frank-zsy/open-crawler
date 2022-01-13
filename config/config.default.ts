@@ -131,6 +131,14 @@ export default (appInfo: EggAppInfo) => {
         enable: false,
       },
     },
+    githubRepo: {
+      githubRepoCrawler: {
+        enable: false,
+      },
+      githubRepoInfoCrawler: {
+        enable: false,
+      },
+    },
   };
 
   // the return config will combines to EggAppConfig

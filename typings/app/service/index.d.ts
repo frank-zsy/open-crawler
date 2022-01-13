@@ -16,6 +16,8 @@ import ExportCoreStaticTokenManager from '../../../app/service/core/static_token
 import ExportCoreUtils from '../../../app/service/core/utils';
 import ExportCoreXiequProxy from '../../../app/service/core/xiequ_proxy';
 import ExportDatabasesClickhouse from '../../../app/service/databases/clickhouse';
+import ExportGithubRepoGithubRepoCrawler from '../../../app/service/github_repo/github_repo_crawler';
+import ExportGithubRepoGithubRepoInfoCrawler from '../../../app/service/github_repo/github_repo_info_crawler';
 import ExportGithubUserGithubUserCrawler from '../../../app/service/github_user/github_user_crawler';
 import ExportGithubUserGithubUserFollow from '../../../app/service/github_user/github_user_follow';
 import ExportMavenMavenIndexCrawler from '../../../app/service/maven/maven_index_crawler';
@@ -42,6 +44,10 @@ declare module 'egg' {
     }
     databases: {
       clickhouse: AutoInstanceType<typeof ExportDatabasesClickhouse>;
+    }
+    githubRepo: {
+      githubRepoCrawler: AutoInstanceType<typeof ExportGithubRepoGithubRepoCrawler>;
+      githubRepoInfoCrawler: AutoInstanceType<typeof ExportGithubRepoGithubRepoInfoCrawler>;
     }
     githubUser: {
       githubUserCrawler: AutoInstanceType<typeof ExportGithubUserGithubUserCrawler>;

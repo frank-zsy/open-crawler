@@ -5,7 +5,7 @@ module.exports = {
   schedule: {
     cron: '24 7 * * * *',
     type: 'worker',
-    immediate: true,
+    immediate: false,
     disable: false,
   },
 

@@ -117,6 +117,7 @@ export default class NpmPackageCrawler extends Service {
               await this.ctx.model.PipRecord.insertMany({
                 name,
                 version,
+                time: data.releases[version].length > 0 ? data.releases[version][0].upload_time_iso_8601 : null,
               }, { ordered: false });
             }
           } catch (e) {

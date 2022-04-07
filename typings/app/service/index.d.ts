@@ -25,7 +25,6 @@ import ExportNpmNpmAllDocCrawler from '../../../app/service/npm/npm_all_doc_craw
 import ExportNpmNpmPackageCrawler from '../../../app/service/npm/npm_package_crawler';
 import ExportPipPipAllPkgCrawler from '../../../app/service/pip/pip_all_pkg_crawler';
 import ExportPipPipPackageCrawler from '../../../app/service/pip/pip_package_crawler';
-import ExportStackoverflowStackoverflow from '../../../app/service/stackoverflow/stackoverflow';
 
 declare module 'egg' {
   interface IService {
@@ -63,9 +62,6 @@ declare module 'egg' {
     pip: {
       pipAllPkgCrawler: AutoInstanceType<typeof ExportPipPipAllPkgCrawler>;
       pipPackageCrawler: AutoInstanceType<typeof ExportPipPipPackageCrawler>;
-    }
-    stackoverflow: {
-      stackoverflow: AutoInstanceType<typeof ExportStackoverflowStackoverflow>;
     }
   }
 }

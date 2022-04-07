@@ -32,7 +32,6 @@ export default class NpmAllDocCrawler extends Service {
     this.ctx.logger.info(`The collection has ${await this.ctx.model.NpmRecord.count()} records`);
     this.ctx.logger.info('Start to add records into collection');
 
-    // TODO need to create collection and index automatically to avoid error
     // add rows into mongodb
     const batch = 50000;
     this.ctx.logger.info(records.rows.length / batch);

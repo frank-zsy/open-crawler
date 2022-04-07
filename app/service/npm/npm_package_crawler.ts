@@ -81,6 +81,15 @@ export default class NpmPackageCrawler extends Service {
             this.ctx.logger.error(`Data contains error, e=${data.error}`);
             return;
           }
+          if (data.time.unpublished) {
+            this.ctx.logger.info(`Package has been unpublished for ${option.userdata.name}`);
+            await this.ctx.model.NpmMeta.updateOne({ name: option.userdata.name }, {
+              status: 'Unpublished',
+              lastUpdatedAt: new Date(),
+              nextUpdateAt: new Date(new Date().getTime() + 60 * 24 * 3600 * 1000),
+            });
+            return;
+          }
 
           const created = data.time.created;
           const modified = data.time.modified;
@@ -107,16 +116,20 @@ export default class NpmPackageCrawler extends Service {
               nextUpdateAt,
             });
             for (const release of releases) {
-              await this.ctx.model.NpmRecord.updateOne({ name: option.userdata.name, version: release.version }, {
+              const result = await this.ctx.model.NpmRecord.updateOne({ name: option.userdata.name, version: release.version }, {
                 $set: {
+                  time: release.time,
                   detail: data.versions[release.version],
                 },
               }, {
                 upsert: true,
               });
+              if (!result.ok) {
+                this.logger.info(`Update record error, result=${JSON.stringify(result)}`);
+              }
             }
           } catch (e) {
-            this.ctx.logger.error(`Error on updating record, e=${e}`);
+            this.ctx.logger.error(`Error on updating record, e=${e}, data=${JSON.stringify(data)}`);
           }
           count++;
           if (count % 100 === 0) {

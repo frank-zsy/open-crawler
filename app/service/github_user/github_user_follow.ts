@@ -23,7 +23,7 @@ export default class GitHubUserFollowCrawler extends Service {
         },
         {
           $sample: {
-            size: 500,
+            size: 1000,
           },
         },
       ]);

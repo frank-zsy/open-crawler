@@ -23,7 +23,7 @@ export default class GitHubRepoInfoCrawler extends Service {
         },
         {
           $sample: {
-            size: 1000,
+            size: 2000,
           },
         },
       ]);

@@ -64,12 +64,11 @@ export default class NpmPackageCrawler extends Service {
           try {
             data = JSON.parse(body);
           } catch (e) {
-            this.logger.info(`JSON parse for ${option.userdata.name} error, body=${body}`);
             return;
           }
 
-          if (data && data.message === 'Pagckage not found') {
-            this.ctx.logger.info(`Package not found for ${option.userdata.name}`);
+          if (_r.statusCode === 404 || (data && data.message === 'Pagckage not found')) {
+            // this.ctx.logger.info(`Package not found for ${option.userdata.name}`);
             await this.ctx.model.ComposerMeta.updateOne({ name: option.userdata.name }, {
               status: 'NotFound',
               lastUpdatedAt: new Date(),

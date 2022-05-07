@@ -31,7 +31,6 @@ export default class ComposerAllPkgCrawler extends Service {
 
     await requestExecutor.start();
 
-    // TODO need to create collection and index automatically to avoid error
     // add rows into mongodb
     const batch = 50000;
     this.ctx.logger.info(packages.packageNames.length / batch);

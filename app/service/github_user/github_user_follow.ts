@@ -23,10 +23,12 @@ export default class GitHubUserFollowCrawler extends Service {
         },
         {
           $sample: {
-            size: 1000,
+            size: 300,
           },
         },
       ]);
+
+      this.logger.info(`Fetch ${records.length} records to update.`);
 
       const dc = new DataCat({
         tokens: this.config.github_v3.tokens,

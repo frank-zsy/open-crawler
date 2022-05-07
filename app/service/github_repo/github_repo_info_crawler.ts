@@ -23,11 +23,12 @@ export default class GitHubRepoInfoCrawler extends Service {
         },
         {
           $sample: {
-            size: 2000,
+            size: 300,
           },
         },
       ]);
 
+      this.logger.info(`Fetch ${records.length} records to update.`);
       const dc = new DataCat({
         tokens: this.config.github_v3.tokens,
       });

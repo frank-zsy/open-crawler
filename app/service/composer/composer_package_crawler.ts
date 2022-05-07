@@ -27,11 +27,12 @@ export default class NpmPackageCrawler extends Service {
         },
         {
           $sample: {
-            size: 2000,
+            size: 200,
           },
         },
       ]);
 
+      this.logger.info(`Fetch ${records.length} records to update.`);
       const options: any[] = [];
 
       records.forEach(data => {

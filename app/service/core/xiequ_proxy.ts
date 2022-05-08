@@ -7,8 +7,8 @@ import { sprintf } from 'sprintf-js';
 export default class XiequProxy extends Service implements Proxy {
 
   private baseUrl = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=%s&vkey=%s&num=%d&time=30&plat=1&re=0&type=1&so=1&ow=1&spl=1&addr=&db=1'
-  private getWhiteListUrl = 'https://www.xiequ.cn/IpWhiteList.aspx?uid=%s&ukey=%s&act=get';
-  private putWhiteListUrl = 'https://www.xiequ.cn/IpWhiteList.aspx?uid=%s&ukey=%s&act=add&ip=%s';
+  private getWhiteListUrl = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=%s&ukey=%s&act=get';
+  private putWhiteListUrl = 'http://op.xiequ.cn/IpWhiteList.aspx?uid=%s&ukey=%s&act=add&ip=%s';
   private getSelfPublicIpUrl = 'http://txt.go.sohu.com/ip/soip';
   private inited = false;
 

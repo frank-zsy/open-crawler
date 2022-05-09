@@ -7,5 +7,6 @@ export default (app: Application) => {
     time: { type: Date },
     detail: { type: Object },
   });
+  schema.index({ name: 1, version: 1 });
   return app.mongoose.model('npm_record', schema);
 };

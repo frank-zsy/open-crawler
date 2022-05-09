@@ -27,7 +27,7 @@ export default class NpmPackageCrawler extends Service {
         },
         {
           $sample: {
-            size: 200,
+            size: 2000,
           },
         },
       ]);
@@ -49,7 +49,7 @@ export default class NpmPackageCrawler extends Service {
       const requestExecutor = this.ctx.service.core.requestExecutor;
       requestExecutor.setOption({
         options,
-        batchSize: 20,
+        batchSize: 50,
         workerRetry: 8,
         workerRetryInterval: 500,
         retryOption: {

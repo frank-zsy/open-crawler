@@ -37,7 +37,7 @@ export default class NpmPackageCrawler extends Service {
         },
         {
           $sample: {
-            size: 1000,
+            size: this.app.config.crawlers.pip.packageCrawler.updateBatch,
           },
         },
       ]);
@@ -88,12 +88,21 @@ export default class NpmPackageCrawler extends Service {
                     nextUpdateAt: new Date(new Date().getTime() + 60 * 24 * 3600 * 1000),
                   },
                 });
-                return;
+              } else {
+                this.ctx.logger.info(`Body can not be parsed, body=${body}`);
               }
+              return;
             }
 
             if (!data.releases) {
               this.logger.info(`Release array not found, name=${name}`);
+              await this.ctx.model.PipMeta.updateOne({ name }, {
+                $set: {
+                  status: 'NotFound',
+                  lastUpdatedAt: new Date(),
+                  nextUpdateAt: new Date(new Date().getTime() + 60 * 24 * 3600 * 1000),
+                },
+              });
               return;
             }
 
@@ -159,7 +168,7 @@ export default class NpmPackageCrawler extends Service {
         },
         {
           $sample: {
-            size: 800,
+            size: this.app.config.crawlers.pip.packageCrawler.updateDetailBatch,
           },
         },
       ]);

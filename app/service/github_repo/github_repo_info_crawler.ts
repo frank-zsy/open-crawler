@@ -23,7 +23,7 @@ export default class GitHubRepoInfoCrawler extends Service {
         },
         {
           $sample: {
-            size: 300,
+            size: this.ctx.app.config.crawlers.githubRepo.githubRepoInfoCrawler.updateBatch,
           },
         },
       ]);

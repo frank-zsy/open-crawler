@@ -27,7 +27,7 @@ export default class NpmPackageCrawler extends Service {
         },
         {
           $sample: {
-            size: 2000,
+            size: this.ctx.app.config.crawlers.npm.packageCrawler.updateBatch,
           },
         },
       ]);
@@ -82,6 +82,17 @@ export default class NpmPackageCrawler extends Service {
             this.ctx.logger.error(`Data contains error, e=${data.error}`);
             return;
           }
+
+          if (!data.time) {
+            this.ctx.logger.info(`Time not exists on data for ${option.userdata.name}`);
+            await this.ctx.model.NpmMeta.updateOne({ name: option.userdata.name }, {
+              status: 'NotFound',
+              lastUpdatedAt: new Date(),
+              nextUpdateAt: new Date(new Date().getTime() + 60 * 24 * 3600 * 1000),
+            });
+            return;
+          }
+
           if (data.time.unpublished) {
             this.ctx.logger.info(`Package has been unpublished for ${option.userdata.name}`);
             await this.ctx.model.NpmMeta.updateOne({ name: option.userdata.name }, {

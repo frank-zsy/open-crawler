@@ -27,7 +27,7 @@ export default class NpmPackageCrawler extends Service {
         },
         {
           $sample: {
-            size: 200,
+            size: this.ctx.app.config.crawlers.composer.packageCrawler.updateBatch,
           },
         },
       ]);

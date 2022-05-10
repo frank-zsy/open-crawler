@@ -23,7 +23,7 @@ export default class GitHubUserFollowCrawler extends Service {
         },
         {
           $sample: {
-            size: 300,
+            size: this.ctx.app.config.crawlers.githubUser.githubUserFollowCrawler.updateBatch,
           },
         },
       ]);

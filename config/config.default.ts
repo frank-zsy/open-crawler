@@ -59,13 +59,6 @@ export default (appInfo: EggAppInfo) => {
     ],
   };
 
-  config.clickhouseServerConfig = {
-    host: 'localhost',
-    protocol: 'http:',
-    port: 8123,
-    format: 'JSON',
-  };
-
   config.clickhouse = {
     serverConfig: {
       host: process.env.CLICKHOUSE_SERVER || 'clickhouse',
@@ -74,12 +67,6 @@ export default (appInfo: EggAppInfo) => {
       format: 'JSON',
       user: process.env.CLICKHOUSE_USER || 'USER',
       password: process.env.CLICKHOUSE_PASSWORD || 'PASSWORD',
-    },
-    getDb: (): string => {
-      return 'github_log';
-    },
-    getTable: (fileName: string): string => {
-      return `year${fileName.substring(0, 4)}`;
     },
   };
 
@@ -93,6 +80,7 @@ export default (appInfo: EggAppInfo) => {
       },
       packageCrawler: {
         enable: false,
+        updateBatch: 300,
       },
     },
     pip: {
@@ -104,6 +92,8 @@ export default (appInfo: EggAppInfo) => {
       },
       packageCrawler: {
         enable: false,
+        updateBatch: 300,
+        updateDetailBatch: 800,
       },
     },
     maven: {
@@ -121,6 +111,7 @@ export default (appInfo: EggAppInfo) => {
       },
       packageCrawler: {
         enable: false,
+        updateBatch: 300,
       },
     },
     githubUser: {
@@ -129,6 +120,7 @@ export default (appInfo: EggAppInfo) => {
       },
       githubUserFollowCrawler: {
         enable: false,
+        updateBatch: 1000,
       },
     },
     githubRepo: {
@@ -137,6 +129,7 @@ export default (appInfo: EggAppInfo) => {
       },
       githubRepoInfoCrawler: {
         enable: false,
+        updateBatch: 1000,
       },
     },
   };

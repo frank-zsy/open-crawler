@@ -9,6 +9,6 @@ export default (app: Application) => {
     lastUpdatedAt: { type: Date },
     nextUpdateAt: { type: Date },
   });
-  schema.index({ name: 1, version: 1 });
+  schema.index({ name: 1, version: 1 }, { unique: true });
   return app.mongoose.model('pip_record', schema);
 };

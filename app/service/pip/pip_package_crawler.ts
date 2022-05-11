@@ -123,12 +123,14 @@ export default class NpmPackageCrawler extends Service {
               nextUpdateAt: nextUpdateAt ?? new Date(new Date().getTime() + 30 * 24 * 3600 * 1000),
             });
             for (const version of Object.keys(data.releases)) {
-              // insert new record item without detail
-              await this.ctx.model.PipRecord.insertMany({
+              await this.ctx.model.PipRecord.updateOne({
                 name,
                 version,
+              }, {
                 time: data.releases[version].length > 0 ? data.releases[version][0].upload_time_iso_8601 : null,
-              }, { ordered: false });
+              }, {
+                upsert: true,
+              });
             }
           } catch (e) {
             this.logger.error(`Error on updating record, e=${e}, name=${option.userdata.name}`);
@@ -209,6 +211,7 @@ export default class NpmPackageCrawler extends Service {
               data = JSON.parse(body);
             } catch {
               this.logger.info(`Data parse for ${name} error, body=${body.slice(500)}`);
+              return;
             }
 
             if (!data.info) {
